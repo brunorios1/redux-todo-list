@@ -1,35 +1,42 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var HelloWorld = require('../components/HelloWorld');
 var Redux = require('redux');
 var createStore = Redux.createStore;
+var Counter = require('../components/Counter');
 
-function HelloWorldReducer(state = 'Hello World!', action) {
-  if (action.type === 'CHANGE') {
-    return action.text;
+function counter(state = 0, action) {
+  switch (action.type)  {
+    case 'INCREMENT':
+      return state + 1;
+    case 'DECREMENT':
+      return state - 1;
+    default:
+      return state;
   }
-
-  return state;
 }
 
-var store = createStore(HelloWorldReducer);
+var store = createStore(counter);
 
 var MainContainer = React.createClass({
-  handlerClick: function () {
+  handleIncrement: function () {
     store.dispatch({
-      type: 'CHANGE',
-      text: 'Hello Redux World!'
+      type: 'INCREMENT'
+    })
+  },
+  handleDecrement: function () {
+    store.dispatch({
+      type: 'DECREMENT'
     })
   },
   render: function () {
     return (
       <div>
-        <HelloWorld value={store.getState()} onHandlerClick={this.handlerClick} />
+        <Counter value={store.getState()} onIncrement={this.handleIncrement} onDecrement={this.handleDecrement} />
       </div>
     )
   }
 })
 
-store.subscribe(function() {console.log(store.getState())});
+store.subscribe(function() {ReactDOM.render(<MainContainer />, document.getElementById('app'))});
 
 module.exports = MainContainer;
