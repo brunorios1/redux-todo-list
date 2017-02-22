@@ -1,5 +1,7 @@
+import React from 'react';
+import { render } from 'react-dom';
 import { createStore } from 'redux';
-import { combineReducers } from 'redux'
+import { combineReducers } from 'redux';
 
 // TODO reducer (individual todos)
 const todo = (state, action) => {
@@ -61,16 +63,54 @@ const todoApp = combineReducers({
 
 const store = createStore(todoApp);
 
+const { Component } = React;
 
+let nextTodoId = 0;
 
+class TodoApp extends Component {
+  render() {
+    return (
+      <div>
+        <input ref={input => {
+          this.todoTextInput = input;
+        }} />
+        <button onClick={() => {
+          store.dispatch({
+            type: 'ADD_TODO',
+            text: this.todoTextInput.value,
+            id: nextTodoId++
+          });
+          this.todoTextInput.value = '';
+        }}>
+          Add Todo
+        </button>
+        <ul>
+          {this.props.todos.map(todo =>
+            <li key={todo.id}>
+              {todo.text}
+            </li>
+          )}
+        </ul>
+      </div>
+    )
+  }
+}
 
+const renderTodoApp = () => {
+    render(
+      <TodoApp todos={store.getState().todos} />,
+      document.getElementById('app')
+    );
+}
 
-
+store.subscribe(renderTodoApp);
+renderTodoApp();
 
 
 // Testing
 
 // ADD_TODO
+console.log("testing ADD_TODO reducer:");
 console.log(
   todos(
     [
@@ -89,6 +129,7 @@ console.log(
 );
 
 // TOGGLE_TODO
+console.log("testing TOGGLE_TODO reducer:");
 console.log(
   todos(
     [
