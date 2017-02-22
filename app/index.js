@@ -1,4 +1,5 @@
-// import { createStore } from 'redux';
+import { createStore } from 'redux';
+import { combineReducers } from 'redux'
 
 // TODO reducer (individual todos)
 const todo = (state, action) => {
@@ -38,6 +39,36 @@ const todos = (state = [], action) => {
       return state;
   }
 };
+
+const visibilityFilter = (state = 'SHOW_ALL', action) => {
+  switch (action.type) {
+    case 'SET_VISIBILITY_FILTER':
+      return action.filter;
+    default:
+      return state;
+  }
+}
+
+const todoApp = combineReducers({
+  // the code below is the same as:
+  // todos: todos,
+  // visibilityFilter: visibilityFilter
+  // but we are using the object literal shorthand notation
+  // by convention, we always name keys and values the same.
+  todos,
+  visibilityFilter
+})
+
+const store = createStore(todoApp);
+
+
+
+
+
+
+
+
+// Testing
 
 // ADD_TODO
 console.log(
