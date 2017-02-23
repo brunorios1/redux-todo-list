@@ -65,27 +65,61 @@ const store = createStore(todoApp);
 
 const { Component } = React;
 
-let nextTodoId = 0;
+const FilterLink = ({filter, children, currentFilter}) => {
+  if (filter === currentFilter) {
+    return <span>{ children }</span>
+  }
+  return (
+    <a href='#'
+      onClick={e => {
+        e.preventDefault();
+        store.dispatch({
+          type: 'SET_VISIBILITY_FILTER',
+          filter
+        })
+      }}
+    >
+      { children }
+    </a>
+  )
+}
 
+const getVisibleTodos = (todos, filter) => {
+  switch (filter) {
+    case 'SHOW_ALL':
+      return todos;
+    case 'SHOW_COMPLETED':
+      return todos.filter(t => t.completed);
+    case 'SHOW_ACTIVE':
+      return todos.filter(t => !t.completed);
+    // default:
+    //   return todos;
+  }
+}
+
+let nextTodoId = 0;
 class TodoApp extends Component {
   render() {
+    const visibleTodos = getVisibleTodos(this.props.todos, this.props.visibilityFilter);
     return (
-      <div>
-        <input ref={input => {
-          this.todoTextInput = input;
-        }} />
-        <button onClick={() => {
-          store.dispatch({
-            type: 'ADD_TODO',
-            text: this.todoTextInput.value,
-            id: nextTodoId++
-          });
-          this.todoTextInput.value = '';
-        }}>
-          Add Todo
-        </button>
+      <div className="text-center">
+        <div className="form-inline">
+          <input className="form-control" ref={input => {
+            this.todoTextInput = input;
+          }} />
+          <button className="btn btn-success" onClick={() => {
+            store.dispatch({
+              type: 'ADD_TODO',
+              text: this.todoTextInput.value,
+              id: nextTodoId++
+            });
+            this.todoTextInput.value = '';
+          }}>
+            Add Todo
+          </button>
+        </div>
         <ul>
-          {this.props.todos.map(todo =>
+          {visibleTodos.map(todo =>
             <li key={todo.id}
               onClick={() => {
                 store.dispatch({
@@ -98,6 +132,11 @@ class TodoApp extends Component {
             </li>
           )}
         </ul>
+        <ul className="list-inline">
+          <li><FilterLink filter="SHOW_ALL" currentFilter={this.props.visibilityFilter}>Show All</FilterLink></li>
+          <li><FilterLink filter="SHOW_ACTIVE" currentFilter={this.props.visibilityFilter}>Show Active</FilterLink></li>
+          <li><FilterLink filter="SHOW_COMPLETED" currentFilter={this.props.visibilityFilter}>Show Completed</FilterLink></li>
+        </ul>
       </div>
     )
   }
@@ -105,7 +144,10 @@ class TodoApp extends Component {
 
 const renderTodoApp = () => {
     render(
-      <TodoApp todos={store.getState().todos} />,
+      // explicitly:
+      // <TodoApp todos={store.getState().todos} visibilityFilter={store.getState().visibilityFilter} />,
+      // all state tree fields using the spread operator:
+      <TodoApp {...store.getState()} />,
       document.getElementById('app')
     );
 }
@@ -114,10 +156,27 @@ store.subscribe(renderTodoApp);
 renderTodoApp();
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Testing
 
 // ADD_TODO
-console.log("testing ADD_TODO reducer:");
+console.log("testing ADD_TODO action:");
 console.log(
   todos(
     [
@@ -136,7 +195,7 @@ console.log(
 );
 
 // TOGGLE_TODO
-console.log("testing TOGGLE_TODO reducer:");
+console.log("testing TOGGLE_TODO action:");
 console.log(
   todos(
     [
@@ -158,3 +217,17 @@ console.log(
     }
   )
 )
+
+// VISIBILITY FILTER
+console.log("testing VISIBILITY_FILTER action:");
+console.log(
+  visibilityFilter(
+    'SHOW_ALL',
+    {
+      type: 'SET_VISIBILITY_FILTER',
+      filter: 'SHOW_COMPLETED'
+    }
+  )
+)
+
+console.log(store.getState());
