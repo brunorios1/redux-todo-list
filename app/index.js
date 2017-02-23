@@ -84,6 +84,22 @@ const FilterLink = ({filter, children, currentFilter}) => {
   )
 }
 
+const Todo = ({onClick, completed, text}) => (
+  <li
+    onClick={onClick}
+    className={completed ? 'is-completed' : ''}>
+    {text}
+  </li>
+)
+
+const TodoList = ({todos, onTodoClick}) => (
+  <ul>
+    {todos.map(todo =>
+      <Todo key={todo.id} {...todo} onClick={() => onTodoClick(todo.id)} />
+    )}
+  </ul>
+)
+
 const getVisibleTodos = (todos, filter) => {
   switch (filter) {
     case 'SHOW_ALL':
@@ -118,20 +134,15 @@ class TodoApp extends Component {
             Add Todo
           </button>
         </div>
-        <ul>
-          {visibleTodos.map(todo =>
-            <li key={todo.id}
-              onClick={() => {
-                store.dispatch({
-                  type: 'TOGGLE_TODO',
-                  id: todo.id
-                });
-              }}
-              className={todo.completed ? 'is-completed' : ''}>
-              {todo.text}
-            </li>
-          )}
-        </ul>
+        <TodoList
+          todos={visibleTodos}
+          onTodoClick={id => {
+            store.dispatch({
+              type: 'TOGGLE_TODO',
+              id
+            });
+          }}
+        />
         <ul className="list-inline">
           <li><FilterLink filter="SHOW_ALL" currentFilter={this.props.visibilityFilter}>Show All</FilterLink></li>
           <li><FilterLink filter="SHOW_ACTIVE" currentFilter={this.props.visibilityFilter}>Show Active</FilterLink></li>
