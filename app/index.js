@@ -61,7 +61,7 @@ const todoApp = combineReducers({
   visibilityFilter
 })
 
-const store = createStore(todoApp);
+// const store = createStore(todoApp);
 
 const { Component } = React;
 
@@ -89,7 +89,7 @@ class FilterLinkContainer extends Component {
   // specific component when the store changes.
   //
   componentDidMount() {
-    store.subscribe(() =>
+    this.props.store.subscribe(() =>
       this.forceUpdate()
     );
   }
@@ -101,8 +101,8 @@ class FilterLinkContainer extends Component {
   render() {
     return (
       <FilterLink
-        active={ this.props.filter === store.getState().visibilityFilter }
-        onClick={() => store.dispatch({
+        active={ this.props.filter === this.props.store.getState().visibilityFilter }
+        onClick={() => this.props.store.dispatch({
           type: 'SET_VISIBILITY_FILTER',
           filter: this.props.filter
         })}
@@ -113,12 +113,12 @@ class FilterLinkContainer extends Component {
   }
 }
 
-const Filters = () => {
+const Filters = ({store}) => {
   return (
     <ul className="list-inline">
-      <li><FilterLinkContainer filter="SHOW_ALL">Show All</FilterLinkContainer></li>
-      <li><FilterLinkContainer filter="SHOW_ACTIVE">Show Active</FilterLinkContainer></li>
-      <li><FilterLinkContainer filter="SHOW_COMPLETED">Show Completed</FilterLinkContainer></li>
+      <li><FilterLinkContainer filter="SHOW_ALL" store={store}>Show All</FilterLinkContainer></li>
+      <li><FilterLinkContainer filter="SHOW_ACTIVE" store={store}>Show Active</FilterLinkContainer></li>
+      <li><FilterLinkContainer filter="SHOW_COMPLETED" store={store}>Show Completed</FilterLinkContainer></li>
     </ul>
   )
 }
@@ -184,7 +184,7 @@ class TodoListContainer extends Component {
   // specific component when the store changes.
   //
   componentDidMount() {
-    store.subscribe(() =>
+    this.props.store.subscribe(() =>
       this.forceUpdate()
     );
   }
@@ -197,12 +197,12 @@ class TodoListContainer extends Component {
       <TodoList
         todos={
           getVisibleTodos(
-            store.getState().todos,
-            store.getState().visibilityFilter
+            this.props.store.getState().todos,
+            this.props.store.getState().visibilityFilter
           )
         }
         onTodoClick={id => {
-          store.dispatch({
+          this.props.store.dispatch({
             type: 'TOGGLE_TODO',
             id
           });
@@ -218,7 +218,7 @@ class AddTodoContainer extends Component {
     return (
       <AddTodo
         onAddClick={text =>
-          store.dispatch({
+          this.props.store.dispatch({
             type: 'ADD_TODO',
             id: nextTodoId++,
             text
@@ -234,9 +234,9 @@ class TodoApp extends Component {
   render() {
     return (
       <div className="text-center">
-        <AddTodoContainer />
-        <TodoListContainer />
-        <Filters />
+        <AddTodoContainer store={this.props.store} />
+        <TodoListContainer store={this.props.store} />
+        <Filters store={this.props.store} />
       </div>
     )
   }
@@ -246,7 +246,7 @@ render(
   // explicitly:
   // <TodoApp todos={store.getState().todos} visibilityFilter={store.getState().visibilityFilter} />,
   // all state tree fields using the spread operator:
-  <TodoApp />,
+  <TodoApp store={createStore(todoApp)} />,
   document.getElementById('app')
 );
 
@@ -325,4 +325,4 @@ console.log(
   )
 )
 
-console.log(store.getState());
+// console.log(store.getState());
