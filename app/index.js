@@ -200,12 +200,7 @@ class TodoApp extends Component {
             });
           }}
         />
-        <Filters visibilityFilter={this.props.visibilityFilter} onFilterClick={filter =>
-          store.dispatch({
-            type: 'SET_VISIBILITY_FILTER',
-            filter
-          })
-        }/>
+        <Filters />
       </div>
     )
   }
