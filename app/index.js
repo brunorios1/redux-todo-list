@@ -65,15 +65,15 @@ const store = createStore(todoApp);
 
 const { Component } = React;
 
-const FilterLink = ({filter, children, currentFilter, onClick}) => {
-  if (filter === currentFilter) {
+const FilterLink = ({children, active, onClick}) => {
+  if (active) {
     return <span>{ children }</span>
   }
   return (
     <a href='#'
       onClick={e => {
         e.preventDefault();
-        onClick(filter)
+        onClick()
       }}
     >
       { children }
@@ -81,12 +81,44 @@ const FilterLink = ({filter, children, currentFilter, onClick}) => {
   )
 }
 
-const Filters = ({visibilityFilter, onFilterClick}) => {
+class FilterLinkContainer extends Component {
+  // Currently, we are re-rendering the TodoApp container when the store
+  // is updated, so all children components, including this, are re-rerendered
+  // as well. But this is not very efficient and we will change that in the future.
+  // So, the code below demonstrates how we can force the update for a
+  // specific component when the store changes.
+  //
+  // componentDidMount() {
+  //   store.subscribe(() =>
+  //     this.forceUpdate()
+  //   );
+  // }
+  //
+  // componentWillUnmount() {
+  //   this.unsubscribe();
+  // }
+
+  render() {
+    return (
+      <FilterLink
+        active={ this.props.filter === store.getState().visibilityFilter }
+        onClick={() => store.dispatch({
+          type: 'SET_VISIBILITY_FILTER',
+          filter: this.props.filter
+        })}
+      >
+        { this.props.children }
+      </FilterLink>
+    )
+  }
+}
+
+const Filters = () => {
   return (
     <ul className="list-inline">
-      <li><FilterLink filter="SHOW_ALL" currentFilter={visibilityFilter} onClick={onFilterClick}>Show All</FilterLink></li>
-      <li><FilterLink filter="SHOW_ACTIVE" currentFilter={visibilityFilter} onClick={onFilterClick}>Show Active</FilterLink></li>
-      <li><FilterLink filter="SHOW_COMPLETED" currentFilter={visibilityFilter} onClick={onFilterClick}>Show Completed</FilterLink></li>
+      <li><FilterLinkContainer filter="SHOW_ALL">Show All</FilterLinkContainer></li>
+      <li><FilterLinkContainer filter="SHOW_ACTIVE">Show Active</FilterLinkContainer></li>
+      <li><FilterLinkContainer filter="SHOW_COMPLETED">Show Completed</FilterLinkContainer></li>
     </ul>
   )
 }
