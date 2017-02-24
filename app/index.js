@@ -145,18 +145,20 @@ const AddTodo = ({onAddClick}) => {
   let todoTextInput;
   return (
     <div>
-      <input className="form-control" ref={input => {
-        todoTextInput = input;
-      }} />
-      <button
-        className="btn btn-success"
-        onClick={() => {
-          onAddClick(todoTextInput.value);
-          todoTextInput.value = '';
-        }}
-      >
-        Add Todo
-      </button>
+      <div className="form-inline">
+        <input className="form-control" ref={input => {
+          todoTextInput = input;
+        }} />
+        <button
+          className="btn btn-success"
+          onClick={() => {
+            onAddClick(todoTextInput.value);
+            todoTextInput.value = '';
+          }}
+        >
+          Add Todo
+        </button>
+      </div>
     </div>
   )
 }
@@ -211,23 +213,28 @@ class TodoListContainer extends Component {
 }
 
 let nextTodoId = 0;
+class AddTodoContainer extends Component {
+  render() {
+    return (
+      <AddTodo
+        onAddClick={text =>
+          store.dispatch({
+            type: 'ADD_TODO',
+            id: nextTodoId++,
+            text
+          })
+        }
+      />
+    )
+  }
+}
+
+// let nextTodoId = 0;
 class TodoApp extends Component {
   render() {
-    const visibleTodos = getVisibleTodos(this.props.todos, this.props.visibilityFilter);
     return (
       <div className="text-center">
-        <div className="form-inline">
-          <AddTodo
-            onAddClick={text =>
-              store.dispatch({
-                type: 'ADD_TODO',
-                id: nextTodoId++,
-                text
-              })
-            }
-          />
-        </div>
-
+        <AddTodoContainer />
         <TodoListContainer />
         <Filters />
       </div>
@@ -236,13 +243,13 @@ class TodoApp extends Component {
 }
 
 const renderTodoApp = () => {
-    render(
-      // explicitly:
-      // <TodoApp todos={store.getState().todos} visibilityFilter={store.getState().visibilityFilter} />,
-      // all state tree fields using the spread operator:
-      <TodoApp {...store.getState()} />,
-      document.getElementById('app')
-    );
+  render(
+    // explicitly:
+    // <TodoApp todos={store.getState().todos} visibilityFilter={store.getState().visibilityFilter} />,
+    // all state tree fields using the spread operator:
+    <TodoApp {...store.getState()} />,
+    document.getElementById('app')
+  );
 }
 
 store.subscribe(renderTodoApp);
