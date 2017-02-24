@@ -174,6 +174,42 @@ const getVisibleTodos = (todos, filter) => {
   }
 }
 
+class TodoListContainer extends Component {
+  // Currently, we are re-rendering the TodoApp container when the store
+  // is updated, so all children components, including this, are re-rerendered
+  // as well. But this is not very efficient and we will change that in the future.
+  // So, the code below demonstrates how we can force the update for a
+  // specific component when the store changes.
+  //
+  // componentDidMount() {
+  //   store.subscribe(() =>
+  //     this.forceUpdate()
+  //   );
+  // }
+  //
+  // componentWillUnmount() {
+  //   this.unsubscribe();
+  // }
+  render() {
+    return (
+      <TodoList
+        todos={
+          getVisibleTodos(
+            store.getState().todos,
+            store.getState().visibilityFilter
+          )
+        }
+        onTodoClick={id => {
+          store.dispatch({
+            type: 'TOGGLE_TODO',
+            id
+          });
+        }}
+      />
+    )
+  }
+}
+
 let nextTodoId = 0;
 class TodoApp extends Component {
   render() {
@@ -191,15 +227,8 @@ class TodoApp extends Component {
             }
           />
         </div>
-        <TodoList
-          todos={visibleTodos}
-          onTodoClick={id => {
-            store.dispatch({
-              type: 'TOGGLE_TODO',
-              id
-            });
-          }}
-        />
+
+        <TodoListContainer />
         <Filters />
       </div>
     )
